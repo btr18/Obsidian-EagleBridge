@@ -19,8 +19,6 @@ import { chooseUploadTargetProfile, type UploadTargetMenuAnchor } from './upload
 import { uploadFileToLibrary, uploadUrlToLibrary } from './eagleApi';
 import { getEagleItemPathLocation } from './eaglePaths';
 import {
-	copyEagleImageIntoVault,
-	normalizeImageSource,
 	resolveInsertWidth,
 	sanitizeEmbedFileName,
 } from './embedFormat';
@@ -562,13 +560,6 @@ export function createMarkdownLink(
 	}
 
 	const width = resolveInsertWidth(link, settings, imageSize);
-	if (settings && normalizeImageSource(settings.imageSource) === 'local') {
-		const localEmbed = copyEagleImageIntoVault(link, width, settings, pluginInstance?.app);
-		if (localEmbed) {
-			return localEmbed;
-		}
-	}
-
 	const sizeSuffix = width ? `|${width}` : '';
 	return `![${safeName}${sizeSuffix}](${link.url})`;
 }

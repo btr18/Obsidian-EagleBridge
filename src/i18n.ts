@@ -52,7 +52,6 @@ export const EB_ZH: Record<string, string> = {
 	'Fixed width': '统一宽度',
 	'Image file name': '图片文件名',
 	'Image size': '图片宽度（基准）',
-	'Image source': '图片来源',
 	'Images': '图片',
 	'Interface language': '界面语言',
 	'Landscape ratio': '横图倍率',
@@ -92,14 +91,14 @@ export const EB_ZH: Record<string, string> = {
 	'Optional. Leave blank to use the library root.': '可选。留空则使用图库根目录。',
 	'Overwrite existing Eagle tags with the page tags.': '用页面标签覆盖 Eagle 中已有的标签。',
 	'PDF, audio and other attachments.': 'PDF、音频等其它附件。',
-	'Portrait width = square base × this value. Default 1.': '竖图宽度 ＝ 方图基准 × 此值。默认 1（即与方图同宽）。',
+	'Portrait width = square base × this value. Default 1.': '竖图宽度 ＝ 方图基准 × 此值，默认 1。',
 	'Send a backlink for new attachments. Requires a YAML id on the page.': '为新附件发送反向链接。需要页面 YAML 中有 id 字段。',
 	'Separate tags use ,': '多个标签用英文逗号分隔',
 	'Switch the language of these settings.': '切换设置面板的语言。',
-	'The Web Viewer core plugin must be enabled to use popup or pane modes.': '使用弹窗或侧边栏模式需先启用「Web Viewer」核心插件。',
+	'The Web Viewer core plugin must be enabled to use popup or pane modes.': '弹窗/侧边栏需先启用 Web Viewer 核心插件。',
 	'Upload external files when dragging or pasting.': '拖入或粘贴外部文件时自动上传。',
 	'Vault identifier used in obsidian://adv-uri links.': '用于 obsidian://adv-uri 链接的库标识。',
-	'Width for near-square images. Leave blank to keep the original size.': '近似方形图片的宽度，横图和竖图都从这里按倍率换算。留空则保持原图尺寸。',
+	'Width for near-square images. Leave blank to keep the original size.': '方图宽度，横竖图按倍率换算。留空保持原图。',
 	'Width in pixels for landscape images.': '横向图片（宽大于高）的像素宽度。',
 	'Width in pixels for portrait images.': '纵向图片（高大于宽）的像素宽度。',
 	'Width in pixels. Leave blank for original size.': '像素宽度。留空则使用原图尺寸。',
@@ -107,24 +106,20 @@ export const EB_ZH: Record<string, string> = {
 	'Applies to this settings panel.': '只影响这个设置面板的文字。',
 	'Avoid symbols such as [ ] in source file names clashing with Obsidian syntax. File names are cleaned by default; you can define your own rule.': '避免素材文件名的 [ ] 等符号与 Obsidian 语法冲突，默认对文件名进行处理，可自定义处理方式。',
 	'File names from your image sources often contain symbols such as [ ], which conflict with Obsidian\'s image syntax. Names are cleaned here so the embed stays valid.': '收图来的文件名常带 [ ] 之类的符号，会和 Obsidian 的图片语法冲突，所以这里先把名字处理干净。',
-	'How images are written into the note when you drag or paste them, and the initial width. The width can always be changed later by editing the number after |.': '拖入 / 粘贴图片时，写进笔记的形式和初始宽度。宽度之后随时能改：把 | 后面的数字改掉即可。',
-	'Only effective in Custom mode. Format: from=>to, comma-separated. Example:   [=>【,]=>】,(=>（': '仅在「自定义」模式下生效。格式：原=>新，多组用英文逗号分隔。例：[=>【,]=>】,(=>（',
+	'Format: from=>to, comma-separated.': '写法：原=>新，多组用逗号分隔。',
 	'Only the initial width written into the note when you drag or paste an image. Change it later by editing the number after | in the note.': '只决定拖入 / 粘贴图片时写进笔记的初始宽度。之后随时可以改：把图片语法里 | 后面的数字改掉即可。',
-	'Size mode: Square as base uses one square width, landscape and portrait scale from it. Fixed size gives every image the same width. Explicit sets landscape and portrait widths directly.': '以方图为基准：先定方图宽度，横图和竖图按倍率算出。固定大小：所有图统一宽度。分别指定：直接给横图和竖图各自的像素宽。',
-	'Strip: remove [ ] ( ) | < >  ·  Replace: swap them to full-width  ·  Numbered: note title + index  ·  Custom: your own rules': '去除：删掉 [ ] ( ) | < > 等符号　·　替代：换成全角括号　·　编号：笔记标题+序号　·　自定义：自己写规则',
-	'Link: the note stores a URL served by a small local server that this plugin runs from your Eagle library folder. Eagle itself does not need to be open, but the library folder must be reachable. Copy into vault: the file is copied inside the vault, so it still shows when the library disk is unplugged; it takes vault space but can be opened full screen.': '链接：笔记里存的地址，由本插件自己起的本地服务提供——它直接从 Eagle 图库文件夹读文件，所以 Eagle 不用开着；但 Obsidian 要开着、图库所在的盘要在。复制进库：文件真的拷进库里，图库盘拔了也能看、能双击全屏，代价是占库的体积。',
+	'Size mode: Square as base uses one square width, landscape and portrait scale from it.': '以方图为基准：定一个方图宽度，横图和竖图按倍率换算。',
+	'Strip: remove [ ] ( ) | < >\nReplace: swap them to full-width\nNumbered: note title + index\nCustom: your own rules': '去除：删掉 [ ] ( ) | < > 等符号\n替代：换成全角括号\n编号：笔记标题 + 序号\n自定义：自己写规则',
 
 	// --- dropdown options ---
 	'Append page tags to Eagle': '把页面标签追加到 Eagle',
 	'Ask every time': '每次询问',
-	'Copy into vault': '复制进库（不依赖图库盘）',
 	'Explicit landscape / portrait width': '横竖分别指定像素',
 	'Fixed size': '固定大小',
 	'Fixed target': '固定目标',
 	'Folder': '文件夹',
 	'Import Eagle tags to YAML': '把 Eagle 标签导入 YAML',
 	'Landscape': '横图',
-	'Link to library file': '链接图库文件（需图库盘可用）',
 	'Note title - index': '笔记标题-序号',
 	'Off': '关闭',
 	'Open in new page': '在新页面打开',
@@ -180,6 +175,11 @@ export class EBSetting extends Setting {
 	}
 
 	setDesc(desc: string | DocumentFragment): this {
-		return super.setDesc(typeof desc === 'string' ? ebT(desc, this.ebSettings) : desc);
+		super.setDesc(typeof desc === 'string' ? ebT(desc, this.ebSettings) : desc);
+		// 描述里允许用 \n 分成多行（例如每个选项单独一行），默认会被折叠成空格
+		if (typeof desc === 'string' && desc.indexOf('\n') !== -1) {
+			this.descEl.style.whiteSpace = 'pre-line';
+		}
+		return this;
 	}
 }

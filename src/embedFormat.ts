@@ -1,4 +1,4 @@
-import type { App, DataAdapter } from 'obsidian';
+import type { App } from 'obsidian';
 import * as fs from 'fs';
 import * as nodePath from 'path';
 import { extractEagleLinkTarget, findLibraryProfileByPort } from './libraryProfiles';
@@ -8,7 +8,6 @@ import type { ResolvedEagleLink } from './urlHandler';
 export type FileNameMode = 'strip' | 'replace' | 'numbered' | 'custom';
 export type ImageSizeMode = 'fixed' | 'ratio' | 'explicit';
 export type SquareAlign = 'portrait' | 'landscape';
-export type ImageSource = 'url' | 'local';
 
 const LANDSCAPE_THRESHOLD = 1.2;
 const PORTRAIT_THRESHOLD = 0.83;
@@ -41,10 +40,6 @@ export function normalizeFileNameMode(value: unknown): FileNameMode {
 
 export function normalizeImageSizeMode(value: unknown): ImageSizeMode {
 	return value === 'ratio' || value === 'explicit' ? value : 'fixed';
-}
-
-export function normalizeImageSource(value: unknown): ImageSource {
-	return value === 'local' ? 'local' : 'url';
 }
 
 export function normalizeSquareAlign(value: unknown): SquareAlign {
@@ -187,78 +182,4 @@ export function resolveInsertWidth(
 		return Math.round(squareWidth * (Number(settings?.portraitRatio) || DEFAULT_PORTRAIT_RATIO));
 	}
 	return squareWidth;
-}
-
-/**
- * Copies the original Eagle file into the vault and returns a regular wikilink embed.
- * Returns `null` (caller should fall back to the URL form) whenever anything fails.
- */
-export function copyEagleImageIntoVault(
-	link: ResolvedEagleLink,
-	width: number,
-	settings?: MyPluginSettings | null,
-	app?: App | null,
-): string | null {
-	try {
-		if (!settings || !app) {
-			return null;
-		}
-		const metadata = readEagleItemMetadata(link, settings);
-		const target = extractEagleLinkTarget(link.url);
-		if (!metadata?.name || !target) {
-			return null;
-		}
-		const profile = findLibraryProfileByPort(settings, target.port);
-		const libraryRoot = profile?.resolvedPath || settings.libraryPath || '';
-		if (!libraryRoot) {
-			return null;
-		}
-		const extension = String(metadata.ext ?? '').replace(/^\./, '');
-		if (!extension) {
-			return null;
-		}
-
-		const sourcePath = nodePath.join(
-			libraryRoot,
-			'images',
-			`${target.itemId}.info`,
-			`${metadata.name}.${extension}`,
-		);
-		if (!fs.existsSync(sourcePath)) {
-			return null;
-		}
-
-		const safeName = sanitizeEmbedFileName(`${metadata.name}.${extension}`, settings, app);
-		const adapter = app.vault.adapter as DataAdapter & { basePath?: string };
-		const vaultRoot = adapter?.basePath ?? '';
-		if (!vaultRoot) {
-			return null;
-		}
-
-		const vaultWithConfig = app.vault as App['vault'] & { getConfig?(name: string): unknown };
-		let relativeDir = String(vaultWithConfig.getConfig?.('attachmentFolderPath') ?? '').trim();
-		if (!relativeDir || relativeDir === '/' || relativeDir === './') {
-			relativeDir = app.workspace.getActiveFile()?.parent?.path ?? '';
-		}
-		relativeDir = relativeDir.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
-		if (/^[A-Za-z]:/.test(relativeDir)) {
-			relativeDir = '';
-		}
-
-		const absoluteDir = relativeDir
-			? nodePath.join(vaultRoot, ...relativeDir.split('/'))
-			: vaultRoot;
-		if (!fs.existsSync(absoluteDir)) {
-			fs.mkdirSync(absoluteDir, { recursive: true });
-		}
-		const destinationPath = nodePath.join(absoluteDir, safeName);
-		if (!fs.existsSync(destinationPath)) {
-			fs.copyFileSync(sourcePath, destinationPath);
-		}
-
-		const relativeFile = relativeDir ? `${relativeDir}/${safeName}` : safeName;
-		return `![[${relativeFile}${width ? `|${width}` : ''}]]`;
-	} catch {
-		return null;
-	}
 }

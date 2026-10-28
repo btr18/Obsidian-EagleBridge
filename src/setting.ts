@@ -6,11 +6,9 @@ import { EBSetting, ebT, normalizeUiLang, type UiLang } from './i18n';
 import {
 	normalizeFileNameMode,
 	normalizeImageSizeMode,
-	normalizeImageSource,
 	normalizeSquareAlign,
 	type FileNameMode,
 	type ImageSizeMode,
-	type ImageSource,
 	type SquareAlign,
 } from './embedFormat';
 
@@ -57,7 +55,6 @@ export interface MyPluginSettings {
 	landscapeWidth?: number;
 	portraitWidth?: number;
 	squareAlign?: SquareAlign;
-	imageSource?: ImageSource;
 	fileNameMode?: FileNameMode;
 	fileNameCustom?: string;
 	uiLang?: UiLang;
@@ -101,7 +98,6 @@ export const DEFAULT_SETTINGS: MyPluginSettings = {
 	landscapeWidth: 640,
 	portraitWidth: 400,
 	squareAlign: 'portrait',
-	imageSource: 'url',
 	fileNameMode: 'strip',
 	fileNameCustom: '',
 	uiLang: 'en',
@@ -612,7 +608,7 @@ export class SampleSettingTab extends PluginSettingTab {
 		);
 		new EBSetting(nameCard, this.plugin.settings)
 			.setName('Naming mode')
-			.setDesc('Strip: remove [ ] ( ) | < >  ·  Replace: swap them to full-width  ·  Numbered: note title + index  ·  Custom: your own rules')
+			.setDesc('Strip: remove [ ] ( ) | < >\nReplace: swap them to full-width\nNumbered: note title + index\nCustom: your own rules')
 			.addDropdown((dropdown) => {
 				dropdown
 					.addOption('strip', ebT('Strip dangerous characters (default)', this.plugin.settings))
@@ -627,11 +623,13 @@ export class SampleSettingTab extends PluginSettingTab {
 					});
 			});
 		if (normalizeFileNameMode(this.plugin.settings.fileNameMode) === 'custom') {
-			new EBSetting(nameCard, this.plugin.settings)
+			// 与「覆盖 Eagle 标签」一致：用缩进 + 左侧竖线表示这是上一项的从属设置
+			const customWrapEl = nameCard.createDiv({ cls: 'eagle-settings-subitem' });
+			new EBSetting(customWrapEl, this.plugin.settings)
 				.setName('Custom rules')
-				.setDesc('Only effective in Custom mode. Format: from=>to, comma-separated. Example:   [=>【,]=>】,(=>（')
+				.setDesc('Format: from=>to, comma-separated.')
 				.addText((text) => {
-					text.setPlaceholder('from=>to')
+					text.setPlaceholder('[=>【,]=>】')
 						.setValue(this.plugin.settings.fileNameCustom ?? '')
 						.onChange(async (value) => {
 							this.plugin.settings.fileNameCustom = value;
@@ -712,24 +710,11 @@ export class SampleSettingTab extends PluginSettingTab {
 		const insertCard = this.createCard(
 			gridEl,
 			'Image insertion',
-			'How images are written into the note when you drag or paste them, and the initial width. The width can always be changed later by editing the number after |.',
+			'Only the initial width written into the note when you drag or paste an image. Change it later by editing the number after | in the note.',
 		);
 		new EBSetting(insertCard, this.plugin.settings)
-			.setName('Image source')
-			.setDesc('Link: the note stores a URL served by a small local server that this plugin runs from your Eagle library folder. Eagle itself does not need to be open, but the library folder must be reachable. Copy into vault: the file is copied inside the vault, so it still shows when the library disk is unplugged; it takes vault space but can be opened full screen.')
-			.addDropdown((dropdown) => {
-				dropdown
-					.addOption('url', ebT('Link to library file', this.plugin.settings))
-					.addOption('local', ebT('Copy into vault', this.plugin.settings))
-					.setValue(normalizeImageSource(this.plugin.settings.imageSource))
-					.onChange(async (value: string) => {
-						this.plugin.settings.imageSource = normalizeImageSource(value);
-						await this.plugin.saveSettings();
-					});
-			});
-		new EBSetting(insertCard, this.plugin.settings)
 			.setName('Size mode')
-			.setDesc('Size mode: Square as base uses one square width, landscape and portrait scale from it. Fixed size gives every image the same width. Explicit sets landscape and portrait widths directly.')
+			.setDesc('Size mode: Square as base uses one square width, landscape and portrait scale from it.')
 			.addDropdown((dropdown) => {
 				dropdown
 					.addOption('fixed', ebT('Fixed size', this.plugin.settings))
@@ -881,7 +866,7 @@ export class SampleSettingTab extends PluginSettingTab {
 		);
 
 		const attachmentTagSyncPanel = syncSection.createDiv({ cls: 'eagle-tag-sync-panel' });
-		attachmentTagSyncPanel.createEl('h3', { text: 'Attachment tag sync' });
+		attachmentTagSyncPanel.createEl('h3', { text: ebT('Attachment tag sync', this.plugin.settings) });
 
 		new EBSetting(attachmentTagSyncPanel, this.plugin.settings)
 			.setName('Sync direction')
@@ -916,7 +901,7 @@ export class SampleSettingTab extends PluginSettingTab {
 		}
 
 		const obsidianLinkSyncPanel = syncSection.createDiv({ cls: 'eagle-obsidian-link-panel' });
-		obsidianLinkSyncPanel.createEl('h3', { text: 'Obsidian link sync' });
+		obsidianLinkSyncPanel.createEl('h3', { text: ebT('Obsidian link sync', this.plugin.settings) });
 
 		new EBSetting(obsidianLinkSyncPanel, this.plugin.settings)
 			.setName('Auto send page link to Eagle')
