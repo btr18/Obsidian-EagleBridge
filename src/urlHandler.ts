@@ -18,6 +18,12 @@ import { getCurrentPageTags } from './synchronizedpagetabs';
 import { chooseUploadTargetProfile, type UploadTargetMenuAnchor } from './uploadTargetModal';
 import { uploadFileToLibrary, uploadUrlToLibrary } from './eagleApi';
 import { getEagleItemPathLocation } from './eaglePaths';
+import {
+	copyEagleImageIntoVault,
+	normalizeImageSource,
+	resolveInsertWidth,
+	sanitizeEmbedFileName,
+} from './embedFormat';
 
 const electron = require('electron');
 const IMAGE_EXTENSIONS = new Set([
@@ -544,13 +550,27 @@ function createUploadedLink(profile: ResolvedEagleLibraryProfile, itemId: string
 	};
 }
 
-export function createMarkdownLink(link: ResolvedEagleLink, imageSize: number | undefined): string {
+export function createMarkdownLink(
+	link: ResolvedEagleLink,
+	imageSize: number | undefined,
+	pluginInstance?: MyPlugin | null,
+): string {
+	const settings = pluginInstance?.settings;
+	const safeName = sanitizeEmbedFileName(link.fileName, settings, pluginInstance?.app);
 	if (!link.isImage) {
-		return `[${link.fileName}](${link.url})`;
+		return `[${safeName}](${link.url})`;
 	}
 
-	const sizeSuffix = imageSize ? `|${imageSize}` : '';
-	return `![${link.fileName}${sizeSuffix}](${link.url})`;
+	const width = resolveInsertWidth(link, settings, imageSize);
+	if (settings && normalizeImageSource(settings.imageSource) === 'local') {
+		const localEmbed = copyEagleImageIntoVault(link, width, settings, pluginInstance?.app);
+		if (localEmbed) {
+			return localEmbed;
+		}
+	}
+
+	const sizeSuffix = width ? `|${width}` : '';
+	return `![${safeName}${sizeSuffix}](${link.url})`;
 }
 
 export async function getTransferFilePath(file: File): Promise<string> {
@@ -724,11 +744,11 @@ export async function resolveMarkdownTransfer(
 			}
 
 			const resolvedLinks = await resolveTransferFilesToEagleLinks(transferFiles, pluginInstance, 'markdown', selection);
-			return resolvedLinks?.map((link) => createMarkdownLink(link, pluginInstance.settings.imageSize)) ?? null;
+			return resolvedLinks?.map((link) => createMarkdownLink(link, pluginInstance.settings.imageSize, pluginInstance)) ?? null;
 		}
 
 		const resolvedLinks = await resolveTransferFilesToEagleLinks(transferFiles, pluginInstance, 'markdown');
-		return resolvedLinks?.map((link) => createMarkdownLink(link, pluginInstance.settings.imageSize)) ?? null;
+		return resolvedLinks?.map((link) => createMarkdownLink(link, pluginInstance.settings.imageSize, pluginInstance)) ?? null;
 	}
 
 	const clipboardText = dataTransfer.getData('text/plain')?.trim() || '';
@@ -754,11 +774,11 @@ export async function resolveMarkdownTransfer(
 			}
 
 			const resolvedLink = await resolveUrlToEagleLink(clipboardText, pluginInstance, selection);
-			return [createMarkdownLink(resolvedLink, pluginInstance.settings.imageSize)];
+			return [createMarkdownLink(resolvedLink, pluginInstance.settings.imageSize, pluginInstance)];
 		}
 
 		const resolvedLink = await resolveUrlToEagleLink(clipboardText, pluginInstance);
-		return [createMarkdownLink(resolvedLink, pluginInstance.settings.imageSize)];
+		return [createMarkdownLink(resolvedLink, pluginInstance.settings.imageSize, pluginInstance)];
 	}
 
 	if (!shouldHandleFiles || clipboardFiles.length === 0) {
@@ -776,11 +796,11 @@ export async function resolveMarkdownTransfer(
 		}
 
 		const resolvedLinks = await resolveTransferFilesToEagleLinks(clipboardFiles, pluginInstance, 'markdown', selection);
-		return resolvedLinks?.map((link) => createMarkdownLink(link, pluginInstance.settings.imageSize)) ?? null;
+		return resolvedLinks?.map((link) => createMarkdownLink(link, pluginInstance.settings.imageSize, pluginInstance)) ?? null;
 	}
 
 	const resolvedLinks = await resolveTransferFilesToEagleLinks(clipboardFiles, pluginInstance, 'markdown');
-	return resolvedLinks?.map((link) => createMarkdownLink(link, pluginInstance.settings.imageSize)) ?? null;
+	return resolvedLinks?.map((link) => createMarkdownLink(link, pluginInstance.settings.imageSize, pluginInstance)) ?? null;
 }
 
 export async function handlePasteEvent(
