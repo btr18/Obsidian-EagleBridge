@@ -4,6 +4,8 @@
 
 # Obsidian EagleBridge Plus
 
+【中文 / [EN](./doc/ReadmeEN.md)】
+
 [Obsidian EagleBridge](https://github.com/zyjGraphein/Obsidian-EagleBridge) 的个人修改版。
 
 原插件由 [zyjGraphein](https://github.com/zyjGraphein) 开发。**功能说明、安装步骤、使用教程、开发文档都以原仓库为准**：
