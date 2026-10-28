@@ -1,155 +1,78 @@
 <p align="center">
-  <img src="./logo/OEbridge.svg" alt="EagleBridge logo" width="120" height="120">
+  <img src="./logo/OEbridge.svg" alt="EagleBridge Plus" width="120" height="120">
 </p>
 
-# Obsidian EagleBridge
+# Obsidian EagleBridge Plus
 
-【[中文](./doc/ReadmeZH.md) / EN】
+[Obsidian EagleBridge](https://github.com/zyjGraphein/Obsidian-EagleBridge) 的个人修改版。
 
-EagleBridge connects Obsidian notes and Canvas boards with media managed in Eagle.
+原插件由 [zyjGraphein](https://github.com/zyjGraphein) 开发。**功能说明、安装步骤、使用教程、开发文档都以原仓库为准**：
 
-[eagle](https://eagle.cool) is a powerful attachment management software that allows for easy management of large quantities of images, videos, and audio materials, suitable for various scenarios such as collection, organization, and search. EagleBridge is intended for desktop vaults on Windows and macOS.
+> **https://github.com/zyjGraphein/Obsidian-EagleBridge**
 
-## Features Overview
+这个 README 只写**和原版不一样的地方**，重复的就不抄了。
 
-This plugin includes the following functionalities:
+## 和原版相比多了什么
 
-- Drag or paste Eagle media into Markdown notes and Canvas boards, with embedded previews.
-- Connect up to 5 Eagle libraries, configure device-specific paths, and choose upload destinations and file types.
-- Inspect attachment references across the current vault, edit metadata, and choose which links to remove.
-- Batch-migrate the current note's local attachments, including videos, to Eagle; export Markdown with Eagle attachments as a folder or ZIP.
-- Choose tag-sync direction and send note backlinks to Eagle with the companion Eagle plugin.
-- Copy embeds, Markdown links, plain URLs or item IDs from Eagle, using the active preview port for each library.
-- Integrate with obEcraft, with improved macOS paths, iCloud imports, video editing, and settings UI.
-- Share preview listeners across open Obsidian vaults using the same Eagle library and port, with automatic takeover after the serving window closes.
+### 1. 插入图片前先清洗文件名
 
-See the [0.3.5 feature summary and video outline (Chinese)](./RELEASE_NOTES_0.3.5.md) for the full update and feature limits.
+Eagle 里的素材名经常带方括号，比如：
 
-[![GitHub stars](https://img.shields.io/github/stars/zyjGraphein/Obsidian-EagleBridge?style=flat&label=Stars)](https://github.com/zyjGraphein/Obsidian-EagleBridge/stargazers)
-[![Total Downloads](https://img.shields.io/github/downloads/zyjGraphein/Obsidian-EagleBridge/total?style=flat&label=Total%20Downloads)](https://github.com/zyjGraphein/Obsidian-EagleBridge/releases)
-[![GitHub Release](https://img.shields.io/github/v/release/zyjGraphein/Obsidian-EagleBridge?style=flat&label=Release)](https://github.com/zyjGraphein/Obsidian-EagleBridge/releases/latest)
-![GitHub Downloads (specific asset, all releases)|150](https://img.shields.io/github/downloads/zyjGraphein/Obsidian-EagleBridge/main.js) 
-![GitHub Downloads (specific asset, latest release)](https://img.shields.io/github/downloads/zyjGraphein/Obsidian-EagleBridge/latest/main.js)
-[![GitHub License](https://img.shields.io/github/license/zyjGraphein/Obsidian-EagleBridge?style=flat&label=License)](https://github.com/zyjGraphein/Obsidian-EagleBridge/blob/master/LICENSE)
-[![GitHub Issues](https://img.shields.io/github/issues/zyjGraphein/Obsidian-EagleBridge?style=flat&label=Issues)](https://github.com/zyjGraphein/Obsidian-EagleBridge/issues)
-[![GitHub Last Commit](https://img.shields.io/github/last-commit/zyjGraphein/Obsidian-EagleBridge?style=flat&label=Last%20Commit)](https://github.com/zyjGraphein/Obsidian-EagleBridge/commits/master)
+```text
+[おろなみんもんすたぁ (犬飼りっぽ)] ＃嫉妬系アイドル (学園アイドルマスター) [中国翻訳]
+```
 
-## Initial Setup Instructions
+原版把它原样塞进 `![文件名|宽度](地址)`，Obsidian 在第一个 `]` 处就判定 alt 结束，整行嵌入失效 —— 图片不显示，笔记里只留一段废掉的 Markdown。
 
-1. **Add an Eagle library** in EagleBridge settings. Give it an alias and a stable preview port (1000–65535, e.g. 6060). Different Eagle libraries need different ports. When several Obsidian vaults use the same library, configure the same port in each to share the preview service.
+这个版本在插入前先处理文件名，四种方式可选（**设置 → 上传设置 → 图片文件名**）：
 
-2. **Set the library path**, copied from Eagle's library selector. Examples:
-   Windows: `D:\onedrive\eagle\Library.library`
-   macOS: `/Users/you/Pictures/Eagle/Library.library`
+| 方式 | 上面那个文件名会变成 |
+| --- | --- |
+| 去除（默认） | `おろなみんもんすたぁ 犬飼りっぽ ＃嫉妬系アイドル 学園アイドルマスター 中国翻訳.webp` |
+| 替代 | `【おろなみんもんすたぁ （犬飼りっぽ）】 ＃嫉妬系アイドル （学園アイドルマスター） 【中国翻訳】.webp` |
+| 编号 | 笔记标题 + 序号 |
+| 自定义 | 自己写 `原=>新` 规则，逗号分隔 |
 
-3. **Configure other devices or libraries**: Add alternate device paths within the same library profile; the first accessible path is used. Add a separate profile for each different Eagle library, up to 5.
+默认「去除」，装上去就生效。本来没有危险字符的文件名原样返回；已经用全角括号的不会被重复处理。
 
-4. **Choose upload behavior**: Select a default Eagle library or ask on each upload. Markdown, Canvas, and file-type switches can be configured separately. Library changes refresh preview services automatically.
+### 2. 插入宽度按宽高比自适应
 
-Update and reload EagleBridge in all open Obsidian vaults to use shared previews. Keep established ports stable because saved links contain the port number.
+原版只有一个固定宽度，4000×800 的长图和 600×1200 的竖图用同一个值。
 
+这个版本从 Eagle 的 `metadata.json` 读宽高（插件自己的本地服务直接读盘，**不需要打开 Eagle**），按横图 / 方图 / 竖图分别乘不同倍率。
 
-## Showcase
+想退回原版的一刀切，把 **设置 → 预览设置 → 宽度模式** 改成「固定大小」即可。
 
-### Load Attachments from Eagle
+### 3. 设置面板中文化
 
-<img src="assets/fromeagle.gif" width="800">
+121 条词条，右上角可切中英文。默认英文，原来用英文的人升级后界面不变。
 
-### Upload Local Attachments to Eagle via EagleBridge and View in Obsidian
+### 4. 设置面板排版整理
 
-<img src="assets/upload.gif" width="800">
+Obsidian 1.14 把设置项渲染成卡片后，原版的 `padding: 12px 0` 会让标题和控件贴死卡片边缘；另外「自定义规则」用缩进 + 左侧竖线标成「命名方式」的子项，和「覆盖 Eagle 标签」用的是同一套表达。
 
+## 下载
 
-## Installation Instructions
+| 版本 | 基于 | 说明 |
+| --- | --- | --- |
+| [0.3.4-plus](https://github.com/btr18/Obsidian-EagleBridge/releases/tag/0.3.4-plus) | 作者发布版 0.3.4 | 稳定基线，推荐 |
+| [0.3.5-plus](https://github.com/btr18/Obsidian-EagleBridge/releases/tag/0.3.5-plus) | 作者 master（尚未发版） | 多出 logo、多库端口共享、Eagle 面板回链复制 |
 
-### Install via BRAT
+## 安装
 
-Add `https://github.com/zyjGraphein/Obsidian-EagleBridge` to [BRAT](https://github.com/TfTHacker/obsidian42-brat).
+**手动**：从上面任一版本的 release 页下载 `main.js`、`manifest.json`、`styles.css` 三个文件，放进
+`.obsidian/plugins/eaglebridge-plus/`，重启 Obsidian 或在设置里重载插件。
 
-### Manual Installation
+**BRAT**：添加仓库 `btr18/Obsidian-EagleBridge`，再选版本。
 
-Visit the latest release page, download `main.js`, `manifest.json`, and `styles.css`, then place them into `<your_vault>/.obsidian/plugins/EagleBridge/`.
+## 注意
 
+- 插件 id 是 `eaglebridge-plus`，**不会覆盖原版**，两个可以同时安装。
+- 但**不能同时启用** —— 都要占用 6061 端口，二选一。
+- 只在 Windows 上验证过；macOS 未测试。
 
-## Usage Guide
+## 致谢
 
-- Text Tutorial ([中文](./doc/TutorialZH.md) / [EN](./doc/Tutorial.md))
-- Video Tutorial ([Obsidian EagleBridge -bilibili](https://www.bilibili.com/video/BV1voQsYaE5W/?share_source=copy_web&vd_source=491bedf306ddb53a3baa114332c02b93))
+原插件 [Obsidian EagleBridge](https://github.com/zyjGraphein/Obsidian-EagleBridge) 由 [zyjGraphein](https://github.com/zyjGraphein) 开发，版权与 [GPL-3.0](./LICENSE) 许可均归原作者。
 
-
-### Notes
-- File uploads require Eagle 4 or later. EagleBridge uses the item IDs returned by Eagle to insert links; it does not watch or scan the entire library for new files. iCloud and external-drive libraries still need to be accessible locally for previews.
-- If an Eagle file comes from a library that is not configured, add that library as a separate library profile before dragging it into Obsidian. EagleBridge will not re-import it into another library.
-- Eagle must be running for uploads and operations that use its API; EagleBridge switches to the configured target library when required. Local previews and reference browsing can still work while Eagle is closed, provided the library files are accessible.
-- When exporting notes as a PDF, images will display correctly, but other links (URLs, PDFs, MP4s) will still be clickable. However, when shared with others (outside the local environment), these links may not open.
-
-### Batch attachment migration
-
-Run **EagleBridge: Upload current Markdown attachments to Eagle** on the current note, or assign a hotkey in **Settings → Hotkeys**. This includes videos and other local attachments referenced in the Markdown body. Imports run sequentially using local file paths; video contents are not buffered in Obsidian's JavaScript memory.
-
-Successful references are replaced even if another import fails. Original attachments go to trash only after checking the Eagle copy and remaining references. YAML data is preserved; paths inside YAML and migration across multiple notes are not supported. Third-party card thumbnails depend on the card plugin.
-
-Embedded videos start paused in Live Preview and Reading view. Select the play control to start playback. Embeds with empty alt text also detect videos. In Live Preview, use the code button at the top right to edit the embed link.
-
-### Copy links from Eagle
-
-Install or update the complete `eagle_to_ob` folder as an Eagle plugin, and reload EagleBridge in Obsidian. In Eagle's inspector, select the **logo** to open **Copy link**. Choose **Embed**, **Link**, **URL** or **Item ID** (plain `ID.info`, without Markdown or a URL); embed width defaults to 700 px and can be changed or left blank. Use the separate **+** button to add a backlink.
-
-Copying a URL or Markdown link requires Obsidian to be running with EagleBridge enabled and the selected item's library configured. The panel discovers that library's live preview service and checks it again before copying; it does not assume port 6060. If the same library has several preview addresses, select one. If unavailable, start/reload EagleBridge and select **Retry**. Existing clipboard contents are preserved on a failed service check. A plain item ID can be copied even when the preview service is offline. A working preview from an older plugin is not enough for discovery: update and reload EagleBridge in every open Obsidian vault, including the window currently serving that port.
-
-Discovery uses small local records under `~/.eaglebridge/preview-servers` in your user home folder, containing only ports and temporary service IDs, grouped by a hash of library identity. It does not upload data or scan network ports. These localhost links work on the local device while its preview service is running.
-
-## Development Guide
-
-This plugin follows the structure of the [Obsidian Sample Plugin](https://github.com/obsidianmd/obsidian-sample-plugin). More details can be found there.
-
-- Clone this repository
-- Ensure your NodeJS is at least v16 (`node --version`)
-- Run `npm i` or `yarn` to install dependencies
-- Run `npm run dev` to start the compiler in watch mode
-
-
-## To-Do List
-
-- [x] Support embedded previews for various file formats (e.g., PDF, MP4, PSD, OBJ, etc.)
-- [ ] Support updating position when dragging.
-- [x] Export a Markdown note with its resolvable Eagle attachments to a folder or ZIP.
-
-## Known Limitations
-
-Reference and deletion checks cover the current Obsidian vault, not other open vaults or external applications. Shared preview services do not merge reference indexes. Batch migration is limited to the current Markdown body, and media playback depends on formats supported by Obsidian. Backlinks generated for Eagle require Advanced URI, a configured vault identifier, and a YAML `id` on the note. The companion Eagle inspector supports common images, videos (including MP4), audio, PDF, web bookmarks (URL), design files, fonts, 3D assets, documents and archives. Its logo opens link copying; existing backlinks and the add button appear alongside it.
-
-
-## Issues and Suggestions
-
-You are welcome to submit issues for:
-
-- Bug reports
-- Ideas for new features
-- Optimizations for existing features
-
-If you are considering developing a large feature, please contact me first so we can determine if it is a good fit for this plugin.
-
-
-## Credits
-This plugin also utilizes API calls from [eagle](https://api.eagle.cool/) to enable viewing, editing, and uploading of Eagle content.
-
-The right-click functionality and image zooming in this plugin draw inspiration from [AttachFlow](https://github.com/Yaozhuwa/AttachFlow)
-
-Video and PDF external link embedding previews are inspired by the corresponding features of [auto-embed](https://github.com/GnoxNahte/obsidian-auto-embed).
-
-Additionally, it is also inspired by some features from[PicGo+Eagle+Python](https://zhuanlan.zhihu.com/p/695526765), [obsidian-auto-link-title](https://github.com/zolrath/obsidian-auto-link-title) and [obsidian-image-auto-upload-plugin](https://github.com/renmu123/obsidian-image-auto-upload-plugin). 
-
-Additionally, support from the Obsidian forum ([get-the-source-path-when-drag-and-drop-or-copying-a-file-image-from-outside](https://forum.obsidian.md/t/how-to-get-the-source-path-when-drag-and-drop-or-copying-a-file-image-from-outside/96437)) helped in implementing the ability to capture file sources via copying or dragging.
-
-
-## License
-
-This project is licensed under the [GNU General Public License v3 (GPL-3.0)](https://github.com/zyjGraphein/EagleBridge/blob/master/LICENSE).
-
-
-## Support
-
-If you appreciate this plugin and want to say thanks, you can buy me a coffee!
-
-<img src="assets/coffee.png" width="400">
+本仓库仅在其基础上做局部修改，改动已作为 PR 提交给原作者。
