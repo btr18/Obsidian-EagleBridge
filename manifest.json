@@ -1,0 +1,11 @@
+{
+	"id": "eaglebridge-plus",
+	"name": "EagleBridge Plus",
+	"version": "0.3.5",
+	"minAppVersion": "0.15.0",
+	"description": "基于 EagleBridge 0.3.5（master）：文件名清洗、插入宽度按宽高比自适应、中文设置面板。",
+	"author": "zyjGraphein（btr18 修改）",
+	"authorUrl": "https://github.com/zyjGraphein",
+	"fundingUrl": "https://github.com/sponsors/zyjGraphein",
+	"isDesktopOnly": false
+}
