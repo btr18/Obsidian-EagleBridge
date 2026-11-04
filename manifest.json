@@ -1,0 +1,11 @@
+{
+	"id": "eaglebridge-plus",
+	"name": "EagleBridge Plus",
+	"version": "0.3.5.1",
+	"minAppVersion": "0.15.0",
+	"description": "EagleBridge Plus: EagleBridge with file-name sanitizing, aspect-ratio insert width, multi-image separator and a zh-CN settings panel.",
+	"author": "zyjGraphein, fork by btr18",
+	"authorUrl": "https://github.com/zyjGraphein",
+	"fundingUrl": "https://github.com/sponsors/zyjGraphein",
+	"isDesktopOnly": false
+}
